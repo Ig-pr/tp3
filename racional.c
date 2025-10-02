@@ -119,6 +119,8 @@ long denominador_r(struct racional *r)
 struct racional *cria_r(long numerador, long denominador)
 {
   struct racional *r = malloc(sizeof(struct racional));
+  if (!r)
+    return NULL;
   r->num = numerador;
   r->den = denominador;
   return r;
@@ -136,7 +138,7 @@ void destroi_r(struct racional **r)
 int valido_r(struct racional *r)
 {
   int val = 0;
-  if (r->den != 0)
+  if (r->den != 0 || !r)
     val = 1;
   return val;
 }
@@ -152,7 +154,30 @@ int valido_r(struct racional *r)
      - se o numerador e denominador forem iguais, imprime somente "1";
      - se o racional for negativo, o sinal é impresso antes do número;
      - se numerador e denominador forem negativos, o racional é positivo. */
-void imprime_r(struct racional *r);
+void imprime_r(struct racional *r)
+{
+  if (r != NULL)
+  {
+    if (!valido_r(r))
+      printf("NaN");
+    else
+    {
+      if ((r->num != 0) && (r->den != 1))
+        printf("%ld/%ld", r->num, r->den);
+      if ((r->den == 0) || (r->den == 1))
+        printf("%ld", r->num);
+    }
+  }
+  else
+    printf("NULL");
+}
+
+struct racional iguala_r(struct racional r, long m)
+{
+  r.num = r.num * (m / r.den);
+  r.den = m;
+  return r;
+}
 
 /* Compara dois números racionais r1 e r2.
  * Retorna -2 se r1 ou r2 for inválido ou se o respectivo ponteiro for nulo.
@@ -160,7 +185,25 @@ void imprime_r(struct racional *r);
  * Atenção: faça a comparação normalizando os denominadores pelo MMC.
  * Fazer a comparação baseado na divisão do numerador pelo denominador
  * pode gerar erro de arredondamento e falsear o resultado. */
-int compara_r(struct racional *r1, struct racional *r2);
+int compara_r(struct racional *r1, struct racional *r2)
+{
+  int m;
+  struct racional rac1, rac2;
+  if (!valido_r(r1) || !valido_r(r2))
+    return -2;
+  if (r1 == NULL || r2 == NULL)
+    return -2;
+  m = mmc(r1->den, r2->den);
+  rac1 = iguala_r(*r1, m);
+  rac2 = iguala_r(*r2, m);
+
+  if (rac1.num < rac2.num)
+    return -1;
+  if (rac1.num == rac2.num)
+    return 0;
+  if (rac1.num > rac2.num)
+    return 1;
+}
 
 /* Coloca em *r3 a soma simplificada dos racionais *r1 e *r2.
  * Retorna 1 em sucesso e 0 se r1 ou r2 for inválido ou um ponteiro for nulo. */
