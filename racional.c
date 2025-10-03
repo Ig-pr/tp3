@@ -207,16 +207,59 @@ int compara_r(struct racional *r1, struct racional *r2)
 
 /* Coloca em *r3 a soma simplificada dos racionais *r1 e *r2.
  * Retorna 1 em sucesso e 0 se r1 ou r2 for inválido ou um ponteiro for nulo. */
-int soma_r(struct racional *r1, struct racional *r2, struct racional *r3);
+int soma_r(struct racional *r1, struct racional *r2, struct racional *r3)
+{
+
+  long m;
+  if ((!valido_r(r1)) || (!valido_r(r2)) || (r3 == NULL))
+    return 0;
+  // Verifica o mmc das frações para poder encontrar frações equivalentes com o mesmo denominador.
+  m = mmc(r1->den, r2->den);
+  iguala_r(*r1, m);
+  iguala_r(*r2, m);
+
+  // Realiza a soma dos numeradores.
+  r3->num = r1->num + r2->num;
+  r3->den = m;
+  simplifica_r(r3);
+  return 1;
+}
 
 /* Coloca em *r3 a diferença simplificada dos racionais *r1 e *r2.
  * Retorna 1 em sucesso e 0 se r1 ou r2 for inválido ou um ponteiro for nulo. */
-int subtrai_r(struct racional *r1, struct racional *r2, struct racional *r3);
+int subtrai_r(struct racional *r1, struct racional *r2, struct racional *r3)
+{
+  long m;
+  if (!valido_r(r1) || !valido_r(r2) || !r3)
+    return 0;
+  // Verifica o mmc das frações para poder encontrar frações equivalentes com o mesmo denominador.
+  m = mmc(r1->den, r2->den);
+  iguala_r(*r1, m);
+  iguala_r(*r2, m);
+  // Realiza a subtração dos numeradores e simplifica.
+  r3->num = r1->num - r2->num;
+  r3->den = m;
+  simplifica_r(r3);
+  return 1;
+}
 
 /* Coloca em *r3 o produto simplificado dos racionais *r1 e *r2.
  * Retorna 1 em sucesso e 0 se r1 ou r2 for inválido ou um ponteiro for nulo. */
-int multiplica_r(struct racional *r1, struct racional *r2, struct racional *r3);
+int multiplica_r(struct racional *r1, struct racional *r2, struct racional *r3)
+{
+  // Simplismente multiplica numerador por denominador e simplifica.
+  r3->num = r1->num * r2->num;
+  r3->den = r1->den * r2->den;
+  simplifica_r(r3);
+  return 0;
+}
 
 /* Coloca em *r3 a divisão simplificada do racional *r1 por *r2.
  * Retorna 1 em sucesso e 0 se r1 ou r2 for inválido ou um ponteiro for nulo. */
-int divide_r(struct racional *r1, struct racional *r2, struct racional *r3);
+int divide_r(struct racional *r1, struct racional *r2, struct racional *r3)
+{
+  r3->num = r1->num * r2->den;
+  r3->den = r1->den * r2->num;
+  simplifica_r(r3);
+  return 0;
+}
